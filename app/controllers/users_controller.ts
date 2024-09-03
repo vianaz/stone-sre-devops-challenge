@@ -16,12 +16,15 @@ export default class UsersController {
   @Post('/users')
   async store({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createUserValidator)
-    const user = await this.usersService.getUserByCpf(payload.cpf)
+    const user = await this.usersService.createUser(payload)
     return response.status(201).json(user)
   }
 
   @Get('/users/:cpf')
-  async showByCpf({ params }: HttpContext) {
-    return this.usersService.getUserByCpf(params.cpf)
+  async showByCpf({ params, response }: HttpContext) {
+    const user = await this.usersService.getUserByCpf(params.cpf)
+
+    if (!user) return response.status(404).json({ message: 'User not found' })
+    return user
   }
 }

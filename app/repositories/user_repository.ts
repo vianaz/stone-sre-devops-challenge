@@ -1,16 +1,17 @@
+import User from '#models/user'
 import { inject } from '@adonisjs/core'
 
 @inject()
 export default class UsersRepository {
   async createUser(user: any) {
-    return user
+    return User.create(user)
   }
 
   async findAll() {
-    return 'All users'
+    return User.all()
   }
 
   async findByCpf(cpf: string) {
-    return cpf
+    return User.findBy('cpf', cpf)
   }
 }
