@@ -1,17 +1,16 @@
-import { inject } from "@adonisjs/core";
+import { inject } from '@adonisjs/core'
 
 @inject()
 export default class UsersRepository {
-  async createUser() {
-    return "User created";
+  async createUser(user: any) {
+    return user
   }
 
   async findAll() {
-    return "All users";
+    return 'All users'
   }
 
   async findByCpf(cpf: string) {
-    return "User by cpf";
+    return cpf
   }
-
 }

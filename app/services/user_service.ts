@@ -15,7 +15,7 @@ export default class UsersService {
   ) {}
 
   async createUser(user: User) {
-    return this.usersRepository.createUser();
+    return this.usersRepository.createUser(user);
   }
 
   async getUsers() {
