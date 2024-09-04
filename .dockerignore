@@ -10,3 +10,11 @@
 **/.aws
 **/dist
 **/out
+**/bruno
+**/build
+**/.env.example
+**/.gitignore
+**/.eslint.config.js
+**/Makefile
+**/README.md
+**/docker

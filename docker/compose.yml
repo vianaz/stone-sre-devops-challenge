@@ -1,8 +1,40 @@
 services:
-  api:
+  migration:
+    container_name: stone-sre-devops-challange-migration
+    depends_on:
+      postgres:
+        condition: service_healthy
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    entrypoint: ["pnpm", "migration:run", "--force"]
+    environment:
+      - TZ=UTC
+      - PORT=8000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=debug
+      - APP_KEY=H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=stone-sre-devops-challange-password
+      - DB_DATABASE=postgres
+  api:
+    container_name: stone-sre-devops-challange-api
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+    entrypoint: ["pnpm", "start"]
+    # TODO: add this healthcheck
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
     ports:
       - 8000:8000
     environment:
@@ -17,9 +49,14 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=stone-sre-devops-challange-password
       - DB_DATABASE=postgres
-
   postgres:
     image: postgres:16
+    container_name: stone-sre-devops-challange-postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: always
     shm_size: 128mb
     volumes:
@@ -28,7 +65,6 @@ services:
       - 5433:5432
     environment:
       POSTGRES_PASSWORD: stone-sre-devops-challange-password
-
 
 volumes:
   db_data:
