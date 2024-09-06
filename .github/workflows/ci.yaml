@@ -41,7 +41,6 @@ jobs:
           check-name: "lint"
           fail-on-warning: false
           fail-on-error: true
-
   build:
     needs: lint
     strategy:
@@ -88,9 +87,55 @@ jobs:
           path: /tmp/${{ env.ARTIFACT_NAME }}.tar
           retention-days: 3
 
-  image-scan:
+  tests:
     runs-on: ubuntu-latest
     needs: [build, lint]
+    env:
+      TZ: UTC
+      PORT: 3000
+      HOST: 0.0.0.0
+      LOG_LEVEL: debug
+      NODE_ENV: test
+      APP_KEY: H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: stone-sre-devops-challange-password
+      DB_DATABASE: postgres
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_DATABASE }}
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9.1.4
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tests
+        run: pnpm test
+
+  image-scan:
+    runs-on: ubuntu-latest
+    needs: [build, lint, tests]
     strategy:
       matrix:
         app: [api]
@@ -130,7 +175,7 @@ jobs:
 
   push-and-sign-image:
     runs-on: ubuntu-latest
-    needs: [image-scan, build]
+    needs: [image-scan, build, lint, tests]
     strategy:
       matrix:
         app: [api]
