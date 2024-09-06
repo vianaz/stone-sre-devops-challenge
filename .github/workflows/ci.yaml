@@ -49,7 +49,7 @@ jobs:
         app: [api]
     runs-on: ubuntu-latest
     outputs:
-      image_name: ${{ steps.meta.outputs.tags }}
+      image_name_with_tag: ${{ steps.meta.outputs.tags }}
       digest: ${{ steps.build.outputs.digest }}
       artifact_name: ${{ env.ARTIFACT_NAME }}
     env:
@@ -96,6 +96,7 @@ jobs:
         app: [api]
     env:
       ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
+      IMAGE_NAME_WITH_TAG: ${{ needs.build.outputs.image_name_with_tag }}
 
     steps:
       - uses: actions/checkout@v4
@@ -115,7 +116,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.20.0
         continue-on-error: true
         with:
-          image-ref: ${{ needs.build.outputs.image_name }}
+          image-ref: ${{ env.IMAGE_NAME_WITH_TAG }}
           format: "sarif"
           output: "trivy-results.sarif"
           severity: "CRITICAL,HIGH"
@@ -140,6 +141,7 @@ jobs:
       attestations: write
     env:
       ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
+      IMAGE_NAME_WITH_TAG: ${{ needs.build.outputs.image_name_with_tag }}
 
     steps:
       - uses: actions/checkout@v4
@@ -165,7 +167,7 @@ jobs:
       - name: Push image to GitHub Container Registry
         id: push
         run: |
-          docker push ${{ env.IMAGE_NAME }}
+          docker push ${{ env.IMAGE_NAME_WITH_TAG }}
 
       - name: Attest
         uses: actions/attest-build-provenance@v1.4.3
