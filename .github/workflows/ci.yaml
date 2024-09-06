@@ -6,6 +6,7 @@ on:
       - main
 env:
   DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   lint:
@@ -49,11 +50,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_name: ${{ steps.meta.outputs.tags }}
-      artifact_name: ${{ env.ARTIFACT_NAME }}
       digest: ${{ steps.build.outputs.digest }}
+      artifact_name: ${{ env.ARTIFACT_NAME }}
     env:
-      APP_NAME: stone-sre-devops-challenge
-      IMAGE_NAME: vianaz/stone-sre-devops-challenge
       DOCKER_FILE: docker/Dockerfile
       ARTIFACT_NAME: stone-sre-devops-challenge-${{ github.sha }}
 
@@ -97,7 +96,6 @@ jobs:
         app: [api]
     env:
       ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
-      IMAGE_NAME: ${{ needs.build.outputs.image_name }}
 
     steps:
       - uses: actions/checkout@v4
@@ -117,7 +115,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.20.0
         continue-on-error: true
         with:
-          image-ref: ${{ env.IMAGE_NAME }}
+          image-ref: ${{ needs.build.outputs.image_name }}
           format: "sarif"
           output: "trivy-results.sarif"
           severity: "CRITICAL,HIGH"
@@ -142,7 +140,6 @@ jobs:
       attestations: write
     env:
       ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
-      IMAGE_NAME: ${{ needs.build.outputs.image_name }}
 
     steps:
       - uses: actions/checkout@v4
@@ -174,7 +171,7 @@ jobs:
         uses: actions/attest-build-provenance@v1
         id: attest
         with:
-          subject-name: ${{ env.DOCKER_REGISTRY }}/vianaz/stone-sre-devops-challenge
+          subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ needs.build.outputs.digest }}
           push-to-registry: true
 
