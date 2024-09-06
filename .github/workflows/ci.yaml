@@ -174,7 +174,7 @@ jobs:
         uses: actions/attest-build-provenance@v1
         id: attest
         with:
-          subject-name: ${{ env.IMAGE_NAME }}
+          subject-name: ${{ env.DOCKER_REGISTRY }}/vianaz/stone-sre-devops-challenge
           subject-digest: ${{ needs.build.outputs.digest }}
           push-to-registry: true
 
