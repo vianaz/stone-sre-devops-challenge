@@ -175,6 +175,7 @@ jobs:
         with:
           subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ needs.build.outputs.digest }}
-          push-to-registry: true
+          # Comment for now because is not working
+          # push-to-registry: true
 
 
