@@ -139,6 +139,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
+      attestations: write
     env:
       ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
       IMAGE_NAME: ${{ needs.build.outputs.image_name }}
