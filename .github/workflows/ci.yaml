@@ -43,9 +43,6 @@ jobs:
           fail-on-error: true
   build:
     needs: lint
-    strategy:
-      matrix:
-        app: [api]
     runs-on: ubuntu-latest
     outputs:
       image_name_with_tag: ${{ steps.meta.outputs.tags }}
@@ -136,9 +133,6 @@ jobs:
   image-scan:
     runs-on: ubuntu-latest
     needs: [build, lint, tests]
-    strategy:
-      matrix:
-        app: [api]
     env:
       ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
       IMAGE_NAME_WITH_TAG: ${{ needs.build.outputs.image_name_with_tag }}
@@ -176,9 +170,6 @@ jobs:
   push-and-sign-image:
     runs-on: ubuntu-latest
     needs: [image-scan, build, lint, tests]
-    strategy:
-      matrix:
-        app: [api]
     permissions:
       contents: read
       packages: write
