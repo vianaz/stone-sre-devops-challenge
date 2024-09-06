@@ -50,6 +50,7 @@ jobs:
     outputs:
       image_name: ${{ steps.meta.outputs.tags }}
       artifact_name: ${{ env.ARTIFACT_NAME }}
+      digest: ${{ steps.build.outputs.digest }}
     env:
       APP_NAME: stone-sre-devops-challenge
       IMAGE_NAME: vianaz/stone-sre-devops-challenge
@@ -165,18 +166,15 @@ jobs:
 
       - name: Push image to GitHub Container Registry
         id: push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          pull: true
-          tags: ${{ env.IMAGE_NAME }}
+        run: |
+          docker push ${{ env.IMAGE_NAME }}
 
       - name: Attest
         uses: actions/attest-build-provenance@v1
         id: attest
         with:
           subject-name: ${{ env.IMAGE_NAME }}
-          subject-digest: ${{ steps.push.outputs.digest }}
+          subject-digest: ${{ needs.build.outputs.digest }}
           push-to-registry: true
 
 
