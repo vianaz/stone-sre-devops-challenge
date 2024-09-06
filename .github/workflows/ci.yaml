@@ -1,0 +1,169 @@
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+env:
+  DOCKER_REGISTRY: ghcr.io
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9.1.4
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint code
+        run: pnpm lint:report
+        continue-on-error: true
+
+      - name: Annotate Code Linting Results
+        uses: ataylorme/eslint-annotate-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          report-json: "lint-results.json"
+          check-name: "lint"
+          fail-on-warning: false
+          fail-on-error: true
+
+  build:
+    needs: lint
+    strategy:
+      matrix:
+        app: [api]
+    runs-on: ubuntu-latest
+    outputs:
+      image_name: ${{ steps.meta.outputs.tags }}
+      artifact_name: ${{ env.ARTIFACT_NAME }}
+    env:
+      APP_NAME: stone-sre-devops-challenge
+      IMAGE_NAME: vianaz/stone-sre-devops-challenge
+      DOCKER_FILE: docker/Dockerfile
+      ARTIFACT_NAME: stone-sre-devops-challenge-${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and export
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.DOCKER_FILE }}
+
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+          outputs: type=docker,dest=/tmp/${{ env.ARTIFACT_NAME }}.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: /tmp/${{ env.ARTIFACT_NAME }}.tar
+          retention-days: 3
+
+  image-scan:
+    runs-on: ubuntu-latest
+    needs: [build, lint]
+    strategy:
+      matrix:
+        app: [api]
+    env:
+      ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
+      IMAGE_NAME: ${{ needs.build.outputs.image_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: /tmp
+
+      - name: Load image
+        run: |
+          docker load --input /tmp/${{ env.ARTIFACT_NAME }}.tar
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.20.0
+        continue-on-error: true
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
+          ignore-unfixed: true
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-results.sarif"
+
+  push-and-sign-image:
+    runs-on: ubuntu-latest
+    needs: [image-scan, build]
+    strategy:
+      matrix:
+        app: [api]
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    env:
+      ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
+      IMAGE_NAME: ${{ needs.build.outputs.image_name }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: sigstore/cosign-installer@v3.6.0
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: /tmp
+
+      - name: Load image
+        run: |
+          docker load --input /tmp/${{ env.ARTIFACT_NAME }}.tar
+
+      - name: Push image to GitHub Container Registry
+        run: |
+          docker push ${{ env.IMAGE_NAME }}
