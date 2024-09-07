@@ -65,6 +65,7 @@ resource "github_actions_environment_secret" "main" {
     DB_USER     = digitalocean_database_cluster.main.user
     APP_KEY     = "H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J"
     DIGITALOCEAN_ACCESS_TOKEN = var.do_token
+    K8S_CLUSTER_ID = digitalocean_kubernetes_cluster.main.id
   }
 
   repository      = data.github_repository.main.name
