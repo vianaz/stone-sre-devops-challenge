@@ -204,15 +204,12 @@ jobs:
           digest=$(docker image inspect ghcr.io/vianaz/stone-sre-devops-challenge:main --format '{{index .RepoDigests 0}}' | cut -d'@' -f2)
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
 
-
-
       - name: Attest
         uses: actions/attest-build-provenance@v1.4.3
         id: attest
         with:
           subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.push.outputs.digest }}
-          # Comment for now because is not working
           push-to-registry: true
 
 

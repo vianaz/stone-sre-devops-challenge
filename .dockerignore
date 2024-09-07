@@ -19,5 +19,6 @@
 **/README.md
 **/docker
 **/.github
+**/terraform
 Makefile
 lint-results.json
