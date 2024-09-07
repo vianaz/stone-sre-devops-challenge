@@ -220,9 +220,6 @@ jobs:
       id-token: write
       contents: read
       actions: read
-    env:
-      KUBE_CONTEXT: k8s
-      KUBECONFIG: /home/runner/.kube/config
     steps:
       - uses: actions/checkout@v4
       - uses: digitalocean/action-doctl@v2
