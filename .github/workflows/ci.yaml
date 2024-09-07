@@ -230,12 +230,7 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Save DigitalOcean kubeconfig
-        run: doctl kubernetes cluster kubeconfig save ${{ secrets.K8S_CLUSTER_ID }} --alias ${{ env.KUBE_CONTEXT }}
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.K8S_CLUSTER_ID }}
 
-      - name: Deploy to Kubernetes
-        uses: Azure/k8s-deploy@v5
-        with:
-          namespace: default
-          manifests: k8s/deployment.yaml
-          images: |
-            ${{ needs.build.outputs.image_name_with_tag }}
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f k8s/deployment.yaml
