@@ -204,7 +204,7 @@ jobs:
           docker push ${{ env.IMAGE_NAME_WITH_TAG }}
 
       - name: Attest
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v1.4.3
         id: attest
         with:
           subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
