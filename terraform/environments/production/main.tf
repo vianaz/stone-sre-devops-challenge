@@ -25,6 +25,7 @@ resource "digitalocean_kubernetes_cluster" "main" {
   region       = "nyc1"
   auto_upgrade = true
   version      = "1.30.4-do.0"
+  destroy_all_associated_resources = true
 
   maintenance_policy {
     start_time = "04:00"

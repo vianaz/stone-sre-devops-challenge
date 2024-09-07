@@ -38,3 +38,5 @@ RUN adduser --system --uid 1001 api
 USER api
 
 COPY --from=builder /app/build .
+
+CMD [ "pnpm", "start" ]

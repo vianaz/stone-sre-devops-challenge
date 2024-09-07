@@ -5,14 +5,13 @@
 **/.vscode
 **/npm-debug.log
 **/coverage
-**/.env
+**/.env*
 **/.editorconfig
 **/.aws
 **/dist
 **/out
 **/bruno
 **/build
-**/.env.example
 **/.gitignore
 **/.eslint.config.js
 **/Makefile
