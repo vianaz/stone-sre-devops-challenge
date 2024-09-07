@@ -46,7 +46,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image_name_with_tag: ${{ steps.meta.outputs.tags }}
-      digest: ${{ steps.build.outputs.digest }}
       artifact_name: ${{ env.ARTIFACT_NAME }}
     env:
       DOCKER_FILE: docker/Dockerfile
@@ -202,13 +201,17 @@ jobs:
         id: push
         run: |
           docker push ${{ env.IMAGE_NAME_WITH_TAG }}
+          digest=$(docker image inspect ghcr.io/vianaz/stone-sre-devops-challenge:main --format '{{index .RepoDigests 0}}' | cut -d'@' -f2)
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+
+
 
       - name: Attest
         uses: actions/attest-build-provenance@v1.4.3
         id: attest
         with:
           subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
-          subject-digest: ${{ needs.build.outputs.digest }}
+          subject-digest: ${{ steps.push.outputs.digest }}
           # Comment for now because is not working
           push-to-registry: true
 
