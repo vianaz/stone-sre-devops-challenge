@@ -230,4 +230,4 @@ jobs:
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.K8S_CLUSTER_ID }}
 
       - name: Deploy to DigitalOcean Kubernetes
-        run: kubectl apply -f k8s/deployment.yaml
+        run: kubectl apply -f k8s/manifest.yaml
