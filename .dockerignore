@@ -20,5 +20,6 @@
 **/docker
 **/.github
 **/terraform
+**/k8s
 Makefile
 lint-results.json
