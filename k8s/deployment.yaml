@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stone-sre-devops-challenge
+spec:
+  selector:
+    matchLabels:
+      app: stone-sre-devops-challenge
+  template:
+    metadata:
+      labels:
+        app: stone-sre-devops-challenge
+    spec:
+      containers:
+      - name: stone-sre-devops-challenge
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80

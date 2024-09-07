@@ -213,3 +213,26 @@ jobs:
           push-to-registry: true
 
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [push-and-sign-image, build]
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save e14d1491-252a-41ce-9986-d94265299760
+
+      - name: Deploy to Kubernetes
+        uses: Azure/k8s-deploy@v5
+        with:
+          namespace: default
+          manifests: k8s/deployment.yaml
+          images: |
+            ${{ needs.build.outputs.image_name_with_tag }}
