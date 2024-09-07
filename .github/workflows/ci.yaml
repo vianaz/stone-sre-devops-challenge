@@ -221,7 +221,7 @@ jobs:
       contents: read
       actions: read
     env:
-      KUBE_CONFIG: ${{ github.workspace }}/.kube/config
+      KUBE_CONFIG: /home/runner/.kube/config
       KUBE_CONTEXT: k8s
     steps:
       - uses: actions/checkout@v4
@@ -230,6 +230,7 @@ jobs:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Save DigitalOcean kubeconfig
+        # Pegar o ID do cluster no DigitalOcean não está automatizado, mudar para pegar de forma dinâmica (talvez posso fazer isso via terraform salvando como variável de ambiente)
         run: doctl kubernetes cluster kubeconfig save e14d1491-252a-41ce-9986-d94265299760 --alias ${{ env.KUBE_CONTEXT }}
 
       - name: Setup kubectl
