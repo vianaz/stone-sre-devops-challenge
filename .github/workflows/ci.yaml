@@ -240,6 +240,15 @@ jobs:
             kubeconfig: ${{ env.KUBE_CONFIG }}
             context: ${{ env.KUBE_CONTEXT }}
 
+      - name: teste-1
+        run:  |
+          cat ${{ env.KUBE_CONFIG }}
+          cat ~/.kube/config
+          ls -la ~/.kube
+
+      - name: teste
+        run: kubectl config get-contexts
+
       - name: Deploy to Kubernetes
         uses: Azure/k8s-deploy@v5
         with:
