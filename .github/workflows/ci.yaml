@@ -250,15 +250,4 @@ jobs:
         uses: WyriHaximus/github-action-helm3@v3
         with:
           exec: |
-            helm upgrade stone-sre-devops-challenge .devops/helm \
-            --install \
-            --set container.tag=main \
-            --set container.pullPolicy=Always \
-            --set env.DB_PASSWORD="teste" \
-            --set env.DB_DATABASE="teste" \
-            --set env.DB_USER="teste" \
-            --set env.DB_PORT=25060\
-            --set env.DB_HOST=stone-sre-devopos-challenge-production-db-do-user-12125100-0.k.db.ondigitalocean.com \
-            --set env.NODE_ENV="production" \
-            --set env.APP_KEY="sdfasdfafdafdafdafdafdafasdfasdfasdfasdfa" \
-            --set env.LOG_LEVEL="debug"
+            helm upgrade stone-sre-devops-challenge .devops/helm --install
