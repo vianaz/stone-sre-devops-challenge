@@ -1,0 +1,18 @@
+namespace: dev
+env:
+  TZ: UTC
+  PORT: 3333
+  HOST: 0.0.0.0
+  LOG_LEVEL: debug
+  APP_KEY: H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J
+  NODE_ENV: production
+  DB_HOST: 127.0.0.1
+  DB_PORT: 5433
+  DB_USER: postgres
+  DB_PASSWORD: stone-sre-devops-challange-password
+  DB_DATABASE: postgres
+container:
+  name: stone-sre-devops-challenge
+  repository: ghcr.io/stone-payments/stone-sre-devops-challenge
+  tag: latest
+  pullPolicy: Always

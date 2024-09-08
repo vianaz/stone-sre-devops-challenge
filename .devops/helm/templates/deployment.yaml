@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        {{- $env := .Values.env -}}
+        {{- with .Values.container }}
+        - name: {{ .name }}
+          image: "{{ .repository }}:{{ .tag }}"
+          imagePullPolicy: {{ .pullPolicy }}
+          ports:
+            - containerPort: {{ $env.PORT }}
+          envFrom:
+            - configMapRef:
+                name: {{ .name }}-configmap
+        {{- end -}}
