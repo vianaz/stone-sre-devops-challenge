@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=.devops/docker/Dockerfile:1
 
 ARG NODE_VERSION=20.11.1
 ARG PNPM_VERSION=9.1.4

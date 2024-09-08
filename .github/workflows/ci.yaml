@@ -48,7 +48,7 @@ jobs:
       image_name_with_tag: ${{ steps.meta.outputs.tags }}
       artifact_name: ${{ env.ARTIFACT_NAME }}
     env:
-      DOCKER_FILE: docker/Dockerfile
+      DOCKER_FILE: .devops/docker/Dockerfile
       ARTIFACT_NAME: stone-sre-devops-challenge-${{ github.sha }}
 
     steps:
@@ -229,5 +229,5 @@ jobs:
       - name: Save DigitalOcean kubeconfig
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.K8S_CLUSTER_ID }}
 
-      - name: Deploy to DigitalOcean Kubernetes
-        run: kubectl apply -f k8s/manifest.yaml
+      # - name: Deploy to DigitalOcean Kubernetes
+      #   run: kubectl apply -f k8s/manifest.yaml

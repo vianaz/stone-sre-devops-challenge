@@ -5,8 +5,8 @@ services:
       postgres:
         condition: service_healthy
     build:
-      context: ../
-      dockerfile: docker/Dockerfile
+      context: ../../
+      dockerfile: .devops/docker/Dockerfile
     entrypoint: ["pnpm", "migration:run", "--force"]
     environment:
       - TZ=UTC
@@ -26,8 +26,8 @@ services:
       migration:
         condition: service_completed_successfully
     build:
-      context: ../
-      dockerfile: docker/Dockerfile
+      context: ../../
+      dockerfile: .devops/docker/Dockerfile
     entrypoint: ["pnpm", "start"]
     # TODO: add this healthcheck
     # healthcheck:
