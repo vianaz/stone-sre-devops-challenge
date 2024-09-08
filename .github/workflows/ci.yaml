@@ -222,6 +222,7 @@ jobs:
       actions: read
     steps:
       - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4.2.0
       - uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
@@ -229,5 +230,17 @@ jobs:
       - name: Save DigitalOcean kubeconfig
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.K8S_CLUSTER_ID }}
 
-      # - name: Deploy to DigitalOcean Kubernetes
-      #   run: kubectl apply -f k8s/manifest.yaml
+      - name: Deploy to Kubernetes
+        run: |
+          helm upgrade --install stone-sre-devops-challenge .devops/helm \
+          --set container.tag=main \
+          --set container.pullPolicy=Always \
+          --set env.DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          --set env.DB_DATABASE=${{ secrets.DB_USER }} \
+          --set env.DB_USER=${{ secrets.DB_USER }} \
+          --set env.DB_PORT=${{ vars.DB_PORT }}\
+          --set env.DB_HOST=${{ vars.DB_HOST }} \
+          --set env.NODE_ENV="production" \
+          --set env.APP_KEY=${{ secrets.APP_KEY }} \
+          --set env.LOG_LEVEL="debug" \
+
