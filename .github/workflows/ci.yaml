@@ -243,5 +243,5 @@ jobs:
           --set env.DB_HOST=${{ vars.DB_HOST }} \
           --set env.NODE_ENV="production" \
           --set env.APP_KEY=${{ secrets.APP_KEY }} \
-          --set env.LOG_LEVEL="debug" \
+          --set env.LOG_LEVEL="debug"
 
