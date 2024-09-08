@@ -232,7 +232,8 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          helm upgrade --install stone-sre-devops-challenge .devops/helm \
+          helm upgrade stone-sre-devops-challenge .devops/helm \
+          --install \
           --set container.tag=main \
           --set container.pullPolicy=Always \
           --set env.DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
