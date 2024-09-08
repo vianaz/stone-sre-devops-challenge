@@ -12,6 +12,6 @@ env:
   DB_DATABASE: postgres
 container:
   name: stone-sre-devops-challenge
-  repository: ghcr.io/stone-payments/stone-sre-devops-challenge
+  repository:  ghcr.io/vianaz/stone-sre-devops-challenge
   tag: latest
   pullPolicy: Always
