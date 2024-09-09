@@ -1,50 +1,33 @@
- # push-and-sign-image:
-  #   runs-on: ubuntu-latest
-  #   needs: [image-scan, build, lint, tests]
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #     id-token: write
-  #     attestations: write
-  #   env:
-  #     ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
-  #     IMAGE_NAME_WITH_TAG: ${{ needs.build.outputs.image_name_with_tag }}
+name: CD Pipeline
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+on:
+  workflow_call:
+    inputs:
+      docker_registry:
+        required: true
+        description: "The Docker registry to push the image to"
+        type: string
+      image_name:
+        required: true
+        description: "The name of the Docker image"
+        type: string
+      image_name_with_tag:
+        required: true
+        description: "The name of the image to push"
+        type: string
+      artifact_name:
+        required: true
+        description: "The name of the artifact to download"
+        type: string
 
-  #     - name: Login to GitHub Container Registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ${{ env.DOCKER_REGISTRY }}
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
-
-  #     - name: Download artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ${{ env.ARTIFACT_NAME }}
-  #         path: /tmp
-
-  #     - name: Load image
-  #       run: |
-  #         docker load --input /tmp/${{ env.ARTIFACT_NAME }}.tar
-
-  #     - name: Push image to GitHub Container Registry
-  #       id: push
-  #       run: |
-  #         docker push ${{ env.IMAGE_NAME_WITH_TAG }}
-  #         digest=$(docker image inspect ghcr.io/vianaz/stone-sre-devops-challenge:main --format '{{index .RepoDigests 0}}' | cut -d'@' -f2)
-  #         echo "digest=$digest" >> "$GITHUB_OUTPUT"
-
-  #     - name: Attest
-  #       uses: actions/attest-build-provenance@v1.4.3
-  #       id: attest
-  #       with:
-  #         subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
-  #         subject-digest: ${{ steps.push.outputs.digest }}
-  #         push-to-registry: true
-
+jobs:
+  push:
+    uses: ./.github/workflows/push-and-sign.yaml
+    with:
+      image_name_with_tag: ${{ inputs.image_name_with_tag }}
+      artifact_name: ${{ inputs.artifact_name }}
+      docker_registry: ${{ inputs.docker_registry }}
+      image_name: ${{ inputs.image_name }}
   # deploy:
   #   runs-on: ubuntu-latest
   #   needs: [push-and-sign-image, build]

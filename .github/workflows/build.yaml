@@ -2,6 +2,15 @@ name: Build Pipeline
 
 on:
   workflow_call:
+    inputs:
+      docker_registry:
+        required: true
+        description: "The Docker registry to push the image to"
+        type: string
+      image_name:
+        required: true
+        description: "The name of the Docker image"
+        type: string
     outputs:
       image_name_with_tag:
         value: ${{ jobs.run.outputs.image_name_with_tag }}
@@ -9,9 +18,6 @@ on:
       artifact_name:
         value: ${{ jobs.run.outputs.artifact_name }}
         description: "The name of the artifact"
-env:
-  DOCKER_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   run:
@@ -31,7 +37,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ inputs.docker_registry }}/${{ inputs.image_name }}
 
       - name: Build and export Docker image
         id: build

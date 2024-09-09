@@ -13,6 +13,9 @@ jobs:
   build:
     needs: lint
     uses: ./.github/workflows/build.yaml
+    with:
+      docker_registry: ghcr.io
+      image_name: ${{ github.repository }}
 
   tests:
     needs: [build, lint]
@@ -25,3 +28,12 @@ jobs:
       artifact_name: ${{ needs.build.outputs.artifact_name }}
       image_name_with_tag: ${{ needs.build.outputs.image_name_with_tag }}
       post-scan-action: ${{ github.ref == 'refs/heads/main' }}
+
+  push:
+    uses: ./.github/workflows/cd.yaml
+    needs: [lint, build, tests, image-scan]
+    with:
+      docker_registry: ghcr.io
+      image_name: ${{ github.repository }}
+      image_name_with_tag: ${{ needs.build.outputs.image_name_with_tag }}
+      artifact_name: ${{ needs.build.outputs.artifact_name }}
