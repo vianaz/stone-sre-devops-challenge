@@ -6,10 +6,6 @@ on:
     branches:
       - main
 
-env:
-  DOCKER_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   lint:
     uses: ./.github/workflows/lint.yaml
@@ -28,4 +24,4 @@ jobs:
     with:
       artifact_name: ${{ needs.build.outputs.artifact_name }}
       image_name_with_tag: ${{ needs.build.outputs.image_name_with_tag }}
-      post-scan-action: false
+      post-scan-action: ${{ github.ref == 'refs/heads/main' }}
