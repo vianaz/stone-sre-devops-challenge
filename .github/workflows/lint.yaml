@@ -7,22 +7,29 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+
+      # - uses: pnpm/action-setup@v4
+      #   name: Install pnpm
+      #   with:
+      #     version: 9.1.4
+      #     run_install: false
+
+      # - name: Install Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: 20
+      #     cache: "pnpm"
+
+      # - name: Install dependencies
+      #   run: pnpm install
+
+      - uses: ./.github/setup-pnpm
         with:
           version: 9.1.4
           run_install: false
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install
 
       - name: Lint code
         run: pnpm lint:report
