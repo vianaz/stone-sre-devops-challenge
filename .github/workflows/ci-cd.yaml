@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   pull_request:
@@ -29,7 +29,7 @@ jobs:
       image_name_with_tag: ${{ needs.build.outputs.image_name_with_tag }}
       post-scan-action: ${{ github.ref == 'refs/heads/main' }}
 
-  push:
+  deploy:
     uses: ./.github/workflows/cd.yaml
     needs: [lint, build, tests, image-scan]
     with:
@@ -37,3 +37,5 @@ jobs:
       image_name: ${{ github.repository }}
       image_name_with_tag: ${{ needs.build.outputs.image_name_with_tag }}
       artifact_name: ${{ needs.build.outputs.artifact_name }}
+      environment: ${{ github.event_name == 'pull_request' && 'dev' }}
+      url: https://${{ github.event.pusher.username }}.example.com
