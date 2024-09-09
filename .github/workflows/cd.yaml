@@ -56,8 +56,12 @@ jobs:
       - name: Save DigitalOcean kubeconfig
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.K8S_CLUSTER_ID }}
 
+      - uses: azure/setup-helm@v4.2.0
+        id: install
+
       - name: Install Helm chart
-        uses: WyriHaximus/github-action-helm3@v3
-        with:
-          exec: |
-            helm upgrade stone-sre-devops-challenge .devops/helm --install --namespace ${{ github.event.pusher.username }}  --set container.tag=main --set container.pullPolicy=Always --set env.DB_PASSWORD=${{ secrets.DB_PASSWORD }} --set env.DB_DATABASE=${{ secrets.DB_USER }} --set env.DB_USER=${{ secrets.DB_USER }} --set env.DB_PORT=${{ vars.DB_PORT }} --set env.DB_HOST=${{ vars.DB_HOST }} --set env.NODE_ENV="production" --set env.APP_KEY=${{ secrets.APP_KEY }} --set env.LOG_LEVEL="debug"
+      # with:
+        #   exec: |
+        #     helm upgrade stone-sre-devops-challenge .devops/helm --install --namespace ${{ github.event.pusher.username }}  --set container.tag=main --set container.pullPolicy=Always --set env.DB_PASSWORD=${{ secrets.DB_PASSWORD }} --set env.DB_DATABASE=${{ secrets.DB_USER }} --set env.DB_USER=${{ secrets.DB_USER }} --set env.DB_PORT=${{ vars.DB_PORT }} --set env.DB_HOST=${{ vars.DB_HOST }} --set env.NODE_ENV="production" --set env.APP_KEY=${{ secrets.APP_KEY }} --set env.LOG_LEVEL="debug"
+        run: |
+          helm
