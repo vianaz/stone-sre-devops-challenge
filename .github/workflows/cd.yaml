@@ -63,6 +63,8 @@ jobs:
           helm upgrade stone-sre-devops-challenge .devops/helm \
           --install \
           --namespace ${{ inputs.namespace }} \
+          --create-namespace \
+          --wait \
           --set container.tag=${{ inputs.namespace }} \
           --set container.pullPolicy=Always \
           --set env.DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
