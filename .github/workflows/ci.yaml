@@ -2,6 +2,9 @@ name: CI Pipeline
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
 env:
   DOCKER_REGISTRY: ghcr.io
@@ -25,3 +28,4 @@ jobs:
     with:
       artifact_name: ${{ needs.build.outputs.artifact_name }}
       image_name_with_tag: ${{ needs.build.outputs.image_name_with_tag }}
+      post-scan-action: false

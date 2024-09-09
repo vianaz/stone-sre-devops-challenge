@@ -11,6 +11,10 @@ on:
         required: true
         type: string
         description: "The name of the image to scan"
+      post-scan-action:
+        required: true
+        type: boolean
+        description: "The action to run after the scan"
 
 env:
   DOCKER_REGISTRY: ghcr.io
@@ -22,6 +26,7 @@ jobs:
     env:
       ARTIFACT_NAME: ${{ inputs.artifact_name }}
       IMAGE_NAME_WITH_TAG: ${{ inputs.image_name_with_tag }}
+      TRIVY_FILENAME: trivy-results.sarif
 
     steps:
       - uses: actions/checkout@v4
@@ -42,12 +47,25 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE_NAME_WITH_TAG }}
           format: "sarif"
-          output: "trivy-results.sarif"
+          output: ${{ env.TRIVY_FILENAME }}
           severity: "CRITICAL,HIGH"
           exit-code: "1"
           ignore-unfixed: true
 
+      - name: Post SARIF findings in the pull request
+        if: github.event_name == 'pull_request'
+        uses: sett-and-hive/sarif-to-comment-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          branch: ${{ github.head_ref }}
+          pr-number: ${{ github.event.number }}
+          sarif-file: ${{ env.TRIVY_FILENAME }}
+          title: Security scan results
+          dry-run: false
+
       - name: Upload Trivy scan results to GitHub Security tab
+        if: ${{ inputs.post-scan-action }}
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: "trivy-results.sarif"
+          sarif_file: ${{ env.TRIVY_FILENAME }}
