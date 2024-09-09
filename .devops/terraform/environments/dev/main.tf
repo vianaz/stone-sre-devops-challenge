@@ -60,14 +60,23 @@ resource "github_repository_environment" "environment" {
   environment = local.environment
 }
 
+resource "github_actions_secret" "main" {
+  depends_on = [ data.github_repository.main ]
+  for_each = {
+    DIGITALOCEAN_ACCESS_TOKEN = var.do_token
+  }
+
+  repository    = data.github_repository.main.name
+  secret_name = each.key
+  plaintext_value = each.value
+}
+
 resource "github_actions_environment_secret" "main" {
   depends_on = [ github_repository_environment.environment, digitalocean_database_cluster.main, digitalocean_kubernetes_cluster.main ]
   for_each = {
     DB_PASSWORD = digitalocean_database_cluster.main.password
     DB_USER     = digitalocean_database_cluster.main.user
     APP_KEY     = "H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J"
-    DIGITALOCEAN_ACCESS_TOKEN = var.do_token
-    K8S_CLUSTER_ID = digitalocean_kubernetes_cluster.main.id
   }
 
   repository      = data.github_repository.main.name
@@ -82,6 +91,7 @@ resource "github_actions_environment_variable" "main" {
     DB_HOST = digitalocean_database_cluster.main.host
     DB_PORT = digitalocean_database_cluster.main.port
     DB_DATABASE = digitalocean_database_cluster.main.database
+    K8S_CLUSTER_ID = digitalocean_kubernetes_cluster.main.id
   }
 
   repository    = data.github_repository.main.name

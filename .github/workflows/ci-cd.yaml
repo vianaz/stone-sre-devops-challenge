@@ -39,4 +39,4 @@ jobs:
       image_name_with_tag: ${{ needs.build.outputs.image_name_with_tag }}
       artifact_name: ${{ needs.build.outputs.artifact_name }}
       environment: ${{ github.event_name == 'pull_request' && 'dev' }}
-      url: https://${{ github.event.pusher.username }}.example.com
+      namespace: pr-${{ github.event.number }}
