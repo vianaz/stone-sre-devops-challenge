@@ -32,6 +32,7 @@ jobs:
   deploy:
     uses: ./.github/workflows/cd.yaml
     needs: [lint, build, tests, image-scan]
+    secrets: inherit
     with:
       docker_registry: ghcr.io
       image_name: ${{ github.repository }}
