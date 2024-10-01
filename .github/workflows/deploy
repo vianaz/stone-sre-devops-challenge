@@ -1,0 +1,41 @@
+name: CI/CD Pull Request
+
+on:
+  pull_request:
+    branches:
+      - develop
+  issue_comment:
+    types:
+      - created
+
+env:
+  STAGE: pr-${{ github.event.number }}
+
+jobs:
+  comment-approval:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on Issue
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.number }}
+          body: |
+            ### :green_circle: Deploy Preview :green_circle:
+
+            **Ready for deployment**: React to this comment with :rocket: to deploy the preview.
+
+  deploy-approval:
+    if: github.event_name == 'issue_comment' && github.event.comment.reactions == 'rocket'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on Issue
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          edit-mode: replace
+          comment-id: ${{ github.event.comment.id }}
+          body: |
+            ### :rocket: Deploy Preview :rocket:
+
+            Deploy aproved by: ${{ github.actor }}
+            **Deployment in progress...**
