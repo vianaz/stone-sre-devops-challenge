@@ -14,4 +14,4 @@ jobs:
           body: |
             ### :green_circle: Deploy Preview :green_circle:
 
-            **Ready for deployment**: React to this comment with :rocket: to deploy the preview.
+            **Ready for deployment**: React to this comment with :rocket: to deploy the preview. huhuuh
