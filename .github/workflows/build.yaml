@@ -1,0 +1,62 @@
+name: Build Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      docker_registry:
+        required: true
+        description: "The Docker registry to push the image to"
+        type: string
+      image_name:
+        required: true
+        description: "The name of the Docker image"
+        type: string
+    outputs:
+      image_name_with_tag:
+        value: ${{ jobs.run.outputs.image_name_with_tag }}
+        description: "The name of the Docker image with tag"
+      artifact_name:
+        value: ${{ jobs.run.outputs.artifact_name }}
+        description: "The name of the artifact"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    outputs:
+      image_name_with_tag: ${{ steps.meta.outputs.tags }}
+      artifact_name: ${{ env.ARTIFACT_NAME }}
+    env:
+      DOCKER_FILE: .devops/docker/Dockerfile
+      ARTIFACT_NAME: stone-sre-devops-challenge-${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Create Docker Meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ inputs.docker_registry }}/${{ inputs.image_name }}
+
+      - name: Build and export Docker image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.DOCKER_FILE }}
+
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+          outputs: type=docker,dest=/tmp/${{ env.ARTIFACT_NAME }}.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: /tmp/${{ env.ARTIFACT_NAME }}.tar
+          retention-days: 3

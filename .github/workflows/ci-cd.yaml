@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yaml
+
+  build:
+    needs: lint
+    uses: ./.github/workflows/build.yaml
+    with:
+      docker_registry: ghcr.io
+      image_name: ${{ github.repository }}
+
+  tests:
+    needs: [build, lint]
+    uses: ./.github/workflows/tests.yaml
+
+  image-scan:
+    uses: ./.github/workflows/scan.yaml
+    needs: [build, lint, tests]
+    with:
+      artifact_name: ${{ needs.build.outputs.artifact_name }}
+      image_name_with_tag: ${{ needs.build.outputs.image_name_with_tag }}
+      post-scan-action: ${{ github.ref == 'refs/heads/main' }}
+
+  deploy:
+    uses: ./.github/workflows/cd.yaml
+    needs: [lint, build, tests, image-scan]
+    secrets: inherit
+    with:
+      docker_registry: ghcr.io
+      image_name: ${{ github.repository }}
+      image_name_with_tag: ${{ needs.build.outputs.image_name_with_tag }}
+      artifact_name: ${{ needs.build.outputs.artifact_name }}
+      environment: ${{ github.event_name == 'pull_request' && 'dev' }}
+      namespace: pr-${{ github.event.number }}
