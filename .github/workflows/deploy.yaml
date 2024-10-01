@@ -38,4 +38,4 @@ jobs:
             ### :rocket: Deploy Preview :rocket:
 
             Deploy aproved by: ${{ github.actor }}
-            **Deployment in progress...**
+            **Deployment in progress....**
