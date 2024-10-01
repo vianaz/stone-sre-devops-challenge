@@ -1,9 +1,7 @@
 name: CI/CD Pull Request
 
 on:
-  issue_comment:
-    types:
-      - created
+  pull_request:
 
 jobs:
   comment-approval:
@@ -17,18 +15,3 @@ jobs:
             ### :green_circle: Deploy Preview :green_circle:
 
             **Ready for deployment**: React to this comment with :rocket: to deploy the preview.
-
-  deploy-approval:
-    if: github.event_name == 'issue_comment' && github.event.comment.reactions == 'rocket'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Comment on Issue
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          edit-mode: replace
-          comment-id: ${{ github.event.comment.id }}
-          body: |
-            ### :rocket: Deploy Preview :rocket:
-
-            Deploy aproved by: ${{ github.actor }}
-            **Deployment in progress...**
