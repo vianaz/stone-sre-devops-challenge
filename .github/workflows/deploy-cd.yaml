@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy-approval:
-    if: github.event_name == 'issue_comment' && github.event.comment.reactions == 'rocket'
+    if: github.event.issue.body == 'Deploy Preview'
     runs-on: ubuntu-latest
     steps:
       - name: Comment on Issue
