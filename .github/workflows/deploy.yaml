@@ -10,7 +10,7 @@ jobs:
       - name: Comment on Issue
         uses: peter-evans/create-or-update-comment@v1
         with:
-          issue-number: ${{ github.event.issue.number }}
+          issue-number: ${{ github.event.number }}
           body: |
             ### :green_circle: Deploy Preview :green_circle:
 
