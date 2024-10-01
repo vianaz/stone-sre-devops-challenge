@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy-approval:
-    if: ${{ github.event.comment.body == ':rocket:' }}
     runs-on: ubuntu-latest
     steps:
       - name: Comment on Issue
