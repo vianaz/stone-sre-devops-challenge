@@ -27,7 +27,7 @@ resource "digitalocean_kubernetes_cluster" "main" {
   node_pool {
     name       = "${local.project_name}-${local.environment}-pool"
     size       = "s-1vcpu-2gb"
-    node_count = 1
+    node_count = 2
   }
 }
 
