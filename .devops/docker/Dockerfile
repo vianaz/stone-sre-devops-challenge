@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ARG NODE_VERSION=20.11.1
-ARG PNPM_VERSION=9.1.4
+ARG PNPM_VERSION=9.14.2
 
 # Setup the base image
 FROM node:${NODE_VERSION}-alpine AS alpine
