@@ -2,7 +2,7 @@
 ############# DigitalOcean Resources ##################
 #######################################################
 locals {
-  environment  = "production"
+  environment  = "shared"
   project_name = "stone-sre-devopos-challenge"
 }
 
