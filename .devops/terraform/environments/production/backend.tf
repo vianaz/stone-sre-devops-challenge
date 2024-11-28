@@ -2,7 +2,7 @@ terraform {
   cloud { 
     organization = "stone-sre-devops-challange"
     workspaces { 
-      name = "shared" 
+      name = "production" 
     } 
   } 
 }

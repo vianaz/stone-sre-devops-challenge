@@ -8,7 +8,7 @@ locals {
 
 resource "digitalocean_project" "main" {
   name        =  local.environment
-  description = "A project to have the shared infra resources"
+  description = "A project that have the shared infra resources"
   purpose     = "Other"
 }
 
@@ -42,9 +42,9 @@ resource "digitalocean_project_resources" "main" {
 #######################################################
 ############# GitHub Repository Integration ###########
 #######################################################
-data "github_repository" "main" {
-  full_name = "vianaz/stone-sre-devops-challenge"
-}
+# data "github_repository" "main" {
+#   full_name = "vianaz/stone-sre-devops-challenge"
+# }
 
 # resource "github_repository_environment" "environment" {
 #   repository  = data.github_repository.main.name
