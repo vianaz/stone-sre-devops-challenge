@@ -163,52 +163,52 @@ jobs:
         with:
           sarif_file: 'trivy-results-docker.sarif'
 
-  # push-and-sign-image:
-  #   runs-on: ubuntu-latest
-  #   needs: [image-scan, build, lint, tests]
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #     id-token: write
-  #     attestations: write
-  #   env:
-  #     ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
-  #     IMAGE_NAME_WITH_TAG: ${{ needs.build.outputs.image_name_with_tag }}
+  push-and-sign-image:
+    runs-on: ubuntu-latest
+    needs: [image-scan, build, lint, tests]
+    permissions:
+      id-token: write
+      packages: write
+      contents: read
+      attestations: write
+    env:
+      ARTIFACT_NAME: ${{ needs.build.outputs.artifact_name }}
+      IMAGE_NAME_WITH_TAG: ${{ needs.build.outputs.image_name_with_tag }}
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Login to GitHub Container Registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         registry: ${{ env.DOCKER_REGISTRY }}
-  #         username: ${{ github.actor }}
-  #         password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Download artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ${{ env.ARTIFACT_NAME }}
-  #         path: /tmp
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: /tmp
 
-  #     - name: Load image
-  #       run: |
-  #         docker load --input /tmp/${{ env.ARTIFACT_NAME }}.tar
+      - name: Load image
+        run: |
+          docker load --input /tmp/${{ env.ARTIFACT_NAME }}.tar
 
-  #     - name: Push image to GitHub Container Registry
-  #       id: push
-  #       run: |
-  #         docker push ${{ env.IMAGE_NAME_WITH_TAG }}
-  #         digest=$(docker image inspect ghcr.io/vianaz/stone-sre-devops-challenge:main --format '{{index .RepoDigests 0}}' | cut -d'@' -f2)
-  #         echo "digest=$digest" >> "$GITHUB_OUTPUT"
+      - name: Push image to GitHub Container Registry
+        id: push
+        run: |
+          docker push ${{ env.IMAGE_NAME_WITH_TAG }}
+          digest=$(docker image inspect ${{ env.IMAGE_NAME_WITH_TAG }} --format '{{index .RepoDigests 0}}' | cut -d'@' -f2)
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
 
-  #     - name: Attest
-  #       uses: actions/attest-build-provenance@v1.4.3
-  #       id: attest
-  #       with:
-  #         subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
-  #         subject-digest: ${{ steps.push.outputs.digest }}
-  #         push-to-registry: true
+      - name: Attest
+        uses: actions/attest-build-provenance@v1
+        id: attest
+        with:
+          subject-name: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
 
   # deploy:
   #   runs-on: ubuntu-latest
