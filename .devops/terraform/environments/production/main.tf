@@ -36,7 +36,7 @@ resource "digitalocean_kubernetes_cluster" "main" {
   node_pool {
     name       = "${local.project_name}-${local.environment}-pool"
     size       = "s-1vcpu-2gb"
-    node_count = 1
+    node_count = 3
   }
 }
 
@@ -52,41 +52,41 @@ resource "digitalocean_project_resources" "main" {
 #######################################################
 ############# GitHub Repository Integration ###########
 #######################################################
-# data "github_repository" "main" {
-#   full_name = "vianaz/stone-sre-devops-challenge"
-# }
+data "github_repository" "main" {
+  full_name = "vianaz/stone-sre-devops-challenge"
+}
 
-# resource "github_repository_environment" "environment" {
-#   repository  = data.github_repository.main.name
-#   environment = local.environment
-# }
+resource "github_repository_environment" "environment" {
+  repository  = data.github_repository.main.name
+  environment = local.environment
+}
 
-# resource "github_actions_environment_secret" "main" {
-#   depends_on = [ github_repository_environment.environment, digitalocean_database_cluster.main, digitalocean_kubernetes_cluster.main ]
-#   for_each = {
-#     DB_PASSWORD = digitalocean_database_cluster.main.password
-#     DB_USER     = digitalocean_database_cluster.main.user
-#     APP_KEY     = "H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J"
-#     DIGITALOCEAN_ACCESS_TOKEN = var.do_token
-#     K8S_CLUSTER_ID = digitalocean_kubernetes_cluster.main.id
-#   }
+resource "github_actions_environment_secret" "main" {
+  depends_on = [ github_repository_environment.environment, digitalocean_database_cluster.main, digitalocean_kubernetes_cluster.main ]
+  for_each = {
+    DB_PASSWORD = digitalocean_database_cluster.main.password
+    DB_USER     = digitalocean_database_cluster.main.user
+    APP_KEY     = "H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J"
+    DIGITALOCEAN_ACCESS_TOKEN = var.do_token
+    K8S_CLUSTER_ID = digitalocean_kubernetes_cluster.main.id
+  }
 
-#   repository      = data.github_repository.main.name
-#   environment     = local.environment
-#   secret_name     = each.key
-#   plaintext_value = each.value
-# }
+  repository      = data.github_repository.main.name
+  environment     = local.environment
+  secret_name     = each.key
+  plaintext_value = each.value
+}
 
-# resource "github_actions_environment_variable" "main" {
-#   depends_on = [ github_repository_environment.environment, digitalocean_database_cluster.main ]
-#   for_each = {
-#     DB_HOST = digitalocean_database_cluster.main.host
-#     DB_PORT = digitalocean_database_cluster.main.port
-#     DB_DATABASE = digitalocean_database_cluster.main.database
-#   }
+resource "github_actions_environment_variable" "main" {
+  depends_on = [ github_repository_environment.environment, digitalocean_database_cluster.main ]
+  for_each = {
+    DB_HOST = digitalocean_database_cluster.main.host
+    DB_PORT = digitalocean_database_cluster.main.port
+    DB_DATABASE = digitalocean_database_cluster.main.database
+  }
 
-#   repository    = data.github_repository.main.name
-#   environment   = local.environment
-#   variable_name = each.key
-#   value         = each.value
-# }
+  repository    = data.github_repository.main.name
+  environment   = local.environment
+  variable_name = each.key
+  value         = each.value
+}
