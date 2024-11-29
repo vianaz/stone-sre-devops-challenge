@@ -55,10 +55,22 @@ resource "digitalocean_project_resources" "main" {
 data "github_repository" "main" {
   full_name = "vianaz/stone-sre-devops-challenge"
 }
+data "github_user" "current" {
+  username = "vianaz"
+}
 
 resource "github_repository_environment" "environment" {
   repository  = data.github_repository.main.name
   environment = local.environment
+
+  can_admins_bypass = false
+  reviewers {
+    users = [ data.github_user.current.id ]
+  }
+  deployment_branch_policy {
+    protected_branches = "main"
+    custom_branch_policies = true
+  }
 }
 
 resource "github_actions_environment_secret" "main" {

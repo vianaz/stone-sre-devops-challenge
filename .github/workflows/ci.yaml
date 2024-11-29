@@ -214,6 +214,7 @@ jobs:
 
   deploy-staging:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [push-and-sign-image, build]
     environment: staging
     permissions:
@@ -249,6 +250,7 @@ jobs:
 
   deploy-production:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [push-and-sign-image, build, deploy-staging]
     environment: production
     permissions:
