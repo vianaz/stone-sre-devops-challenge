@@ -11,7 +11,7 @@ images:
 
 configMapGenerator:
   - name: api-config
-    env: ../../../.env
+    env: .env
 
 replacements:
   - source:
