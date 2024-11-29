@@ -152,7 +152,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: ${{ env.IMAGE_NAME_WITH_TAG }}
+          image-ref: nginx
           format: "template"
           template: '@/contrib/sarif.tpl'
           output: "trivy-results.sarif"
