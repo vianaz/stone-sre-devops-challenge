@@ -48,9 +48,7 @@ resource "digitalocean_kubernetes_cluster" "main" {
     local.environment
   ]
 }
-data "digitalocean_kubernetes_cluster" "main" {
-  name = digitalocean_kubernetes_cluster.main.name
-}
+
 
 # Project Resources
 resource "digitalocean_project_resources" "main" {
