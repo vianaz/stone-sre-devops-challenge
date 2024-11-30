@@ -34,4 +34,4 @@ replacements:
           kind: Service
           name: api
         fieldPaths:
-          - spec.ports.[name=http].port
+          - spec.ports.[name=http].targetPort
