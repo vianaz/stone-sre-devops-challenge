@@ -113,6 +113,7 @@ resource "github_actions_environment_variable" "main" {
   for_each = {
     DB_PORT = digitalocean_database_cluster.main.port
     DB_DATABASE = digitalocean_database_cluster.main.database
+    APP_URL = "https://${cloudflare_record.main.name}"
     LOAD_BALANCER_SIZE_UNIT = 2
   }
 
@@ -120,4 +121,19 @@ resource "github_actions_environment_variable" "main" {
   environment   = local.environment
   variable_name = each.key
   value         = each.value
+}
+
+########################################################
+################## CloudFlare #########################
+######################################################
+data "cloudflare_zone" "main" {
+  name = "vianaz.online"
+}
+resource "cloudflare_record" "main" {
+  zone_id = data.cloudflare_zone.main.id
+  name    = "api"
+  content = digitalocean_loadbalancer.main.ip
+  type    = "A"
+  ttl     = 60
+  proxied = true
 }
