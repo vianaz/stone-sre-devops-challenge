@@ -67,9 +67,9 @@ resource "github_repository_environment" "environment" {
   environment = local.environment
 
   can_admins_bypass = false
-  reviewers {
-    users = [ data.github_user.current.id ]
-  }
+  # reviewers {
+  #   users = [ data.github_user.current.id ]
+  # }
   deployment_branch_policy {
     protected_branches = false
     custom_branch_policies = true
