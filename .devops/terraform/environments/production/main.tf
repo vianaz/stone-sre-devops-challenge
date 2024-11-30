@@ -46,6 +46,13 @@ resource "digitalocean_kubernetes_cluster" "main" {
 resource "digitalocean_loadbalancer" "main" {
   name   = "${local.project_name}-${local.environment}-lb"
   region = "nyc1"
+
+  forwarding_rule {
+    entry_port   = 80
+    entry_protocol = "http"
+    target_port = 80
+    target_protocol = "http"
+  }
 }
 
 # Project Resources
