@@ -42,24 +42,6 @@ resource "digitalocean_kubernetes_cluster" "main" {
   }
 }
 
-# Load Balancer
-resource "digitalocean_loadbalancer" "main" {
-  name   = "${local.project_name}-${local.environment}-lb"
-  region = "nyc1"
-
-  forwarding_rule {
-    entry_port   = 80
-    entry_protocol = "http"
-    target_port = 80
-    target_protocol = "http"
-  }
-
-  lifecycle {
-    # This is necessary because the load balancer is created once and then will be managed by Kubernetes Service
-    ignore_changes = [ forwarding_rule, name ]
-  }
-}
-
 # Project Resources
 resource "digitalocean_project_resources" "main" {
   project = digitalocean_project.main.id

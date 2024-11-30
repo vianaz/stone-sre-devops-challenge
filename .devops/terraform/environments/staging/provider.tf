@@ -10,3 +10,11 @@ provider "github" {
 provider "cloudflare" {
   api_token = var.cloudflare_token
 }
+
+provider "kubernetes" {
+  host  = data.digitalocean_kubernetes_cluster.main.kube_config.0.host
+  token = data.digitalocean_kubernetes_cluster.main.kube_config.0.token
+  cluster_ca_certificate = base64decode(
+    data.digitalocean_kubernetes_cluster.main.kube_config.0.cluster_ca_certificate
+  )
+}
