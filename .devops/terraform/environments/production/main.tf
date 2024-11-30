@@ -84,7 +84,6 @@ resource "github_actions_environment_secret" "main" {
     APP_KEY     = "H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J"
     DIGITALOCEAN_ACCESS_TOKEN = var.do_token
     K8S_CLUSTER_ID = digitalocean_kubernetes_cluster.main.id
-    LOAD_BALANCER_ID = digitalocean_loadbalancer.main.id
     DB_HOST = digitalocean_database_cluster.main.host
   }
 
@@ -99,7 +98,6 @@ resource "github_actions_environment_variable" "main" {
   for_each = {
     DB_PORT = digitalocean_database_cluster.main.port
     DB_DATABASE = digitalocean_database_cluster.main.database
-    APP_URL = "https://${cloudflare_record.main.hostname}"
     LOAD_BALANCER_SIZE_UNIT = 2
   }
 
