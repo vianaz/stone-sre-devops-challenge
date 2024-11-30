@@ -21,6 +21,7 @@ resource "digitalocean_database_cluster" "main" {
   node_count = 1
 }
 
+
 resource "digitalocean_kubernetes_cluster" "main" {
   name         = "${local.project_name}-${local.environment}-k8s"
   region       = "nyc1"
@@ -40,12 +41,19 @@ resource "digitalocean_kubernetes_cluster" "main" {
   }
 }
 
+# Load Balancer
+resource "digitalocean_loadbalancer" "main" {
+  name   = "${local.project_name}-${local.environment}-lb"
+  region = "nyc1"
+}
+
 # Project Resources
 resource "digitalocean_project_resources" "main" {
   project = digitalocean_project.main.id
   resources = [
     digitalocean_database_cluster.main.urn,
-    digitalocean_kubernetes_cluster.main.urn
+    digitalocean_kubernetes_cluster.main.urn,
+    digitalocean_loadbalancer.main.urn
   ]
 }
 
@@ -82,6 +90,8 @@ resource "github_actions_environment_secret" "main" {
     APP_KEY     = "H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J"
     DIGITALOCEAN_ACCESS_TOKEN = var.do_token
     K8S_CLUSTER_ID = digitalocean_kubernetes_cluster.main.id
+    LOAD_BALANCER_ID = digitalocean_loadbalancer.main.id
+    LOAD_BALANCER_SIZE_UNIT = "1"
   }
 
   repository      = data.github_repository.main.name
