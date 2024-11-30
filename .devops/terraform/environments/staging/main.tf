@@ -105,8 +105,8 @@ resource "github_actions_environment_variable" "main" {
   for_each = {
     DB_PORT                 = digitalocean_database_cluster.main.port
     DB_DATABASE             = digitalocean_database_cluster.main.database
-    LOAD_BALANCER_SIZE_UNIT = 2
-    # APP_URL                 = "https://${cloudflare_record.main.hostname}"
+    LOAD_BALANCER_SIZE_UNIT = 1
+    APP_URL                 = "https://${cloudflare_record.main.hostname}"
   }
 
   repository    = data.github_repository.main.name
@@ -116,36 +116,28 @@ resource "github_actions_environment_variable" "main" {
 }
 
 ########################################################
+################## Kubernetes #########################
+######################################################
+data "kubernetes_service" "main" {
+  metadata {
+    name = "api"
+  }
+}
+
+########################################################
 ################## CloudFlare #########################
 ######################################################
-# data "kubernetes_service" "main" {
-#   metadata {
-#     name = "api"
-#   }
-# }
-# data "cloudflare_zone" "main" {
-#   name = "vianaz.online"
-# }
-# resource "cloudflare_record" "main" {
-#   zone_id = data.cloudflare_zone.main.id
-#   name    = "api-${local.environment}"
-#   content = data.kubernetes_service.main.spec.0.load_balancer_ip
-#   type    = "A"
-#   ttl     = 1
-#   proxied = true
-# }
-
-output "kube_config" {
-  value = data.digitalocean_kubernetes_cluster.main.kube_config.0.raw_config
-  sensitive = true
+data "cloudflare_zone" "main" {
+  name = "vianaz.online"
+}
+resource "cloudflare_record" "main" {
+  zone_id = data.cloudflare_zone.main.id
+  name    = "api-${local.environment}"
+  content = data.kubernetes_service.main.status.0.load_balancer.0.ingress.0.ip
+  type    = "A"
+  ttl     = 1
+  proxied = true
 }
 
-output "host" {
-  value  = data.digitalocean_kubernetes_cluster.main.kube_config.0.host
-  sensitive = true
-}
 
-output "token" {
-  value  = data.digitalocean_kubernetes_cluster.main.kube_config.0.token
-  sensitive = true
-}
+

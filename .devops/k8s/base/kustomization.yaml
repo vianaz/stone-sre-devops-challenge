@@ -24,7 +24,6 @@ replacements:
           name: api
         fieldPaths:
           - spec.template.spec.containers.[name=api].ports.[name=http].containerPort
-
   - source:
       name: api-config
       kind: ConfigMap

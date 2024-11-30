@@ -98,7 +98,7 @@ resource "github_actions_environment_variable" "main" {
   for_each = {
     DB_PORT = digitalocean_database_cluster.main.port
     DB_DATABASE = digitalocean_database_cluster.main.database
-    LOAD_BALANCER_SIZE_UNIT = 2
+    LOAD_BALANCER_SIZE_UNIT = 1
   }
 
   repository    = data.github_repository.main.name
@@ -108,16 +108,25 @@ resource "github_actions_environment_variable" "main" {
 }
 
 ########################################################
+################## Kubernetes #########################
+######################################################
+data "kubernetes_service" "main" {
+  metadata {
+    name = "api"
+  }
+}
+
+########################################################
 ################## CloudFlare #########################
 ######################################################
-# data "cloudflare_zone" "main" {
-#   name = "vianaz.online"
-# }
-# resource "cloudflare_record" "main" {
-#   zone_id = data.cloudflare_zone.main.id
-#   name    = "api"
-#   content = digitalocean_loadbalancer.main.ip
-#   type    = "A"
-#   ttl     = 1
-#   proxied = true
-# }
+data "cloudflare_zone" "main" {
+  name = "vianaz.online"
+}
+resource "cloudflare_record" "main" {
+  zone_id = data.cloudflare_zone.main.id
+  name    = "api"
+  content = data.kubernetes_service.main.status.0.load_balancer.0.ingress.0.ip
+  type    = "A"
+  ttl     = 1
+  proxied = true
+}
