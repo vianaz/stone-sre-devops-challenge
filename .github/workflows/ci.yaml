@@ -239,14 +239,14 @@ jobs:
 
       - name: Patch .env
         run: |
+          sed -i "s/LOG_LEVEL=.*/LOG_LEVEL=debug/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/APP_KEY=.*/APP_KEY=${{ secrets.APP_KEY }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/NODE_ENV=.*/NODE_ENV=production/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/DB_HOST=.*/DB_HOST=${{ secrets.DB_HOST }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/DB_PORT=.*/DB_PORT=${{ vars.DB_PORT }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/DB_USER=.*/DB_USER=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
           sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
           sed -i "s/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_USER=.*/DB_USER=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_PORT=.*/DB_PORT=${{ vars.DB_PORT }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_HOST=.*/DB_HOST=${{ secrets.DB_HOST }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/NODE_ENV=.*/NODE_ENV=production/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/APP_KEY=.*/APP_KEY=${{ secrets.APP_KEY }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/LOG_LEVEL=.*/LOG_LEVEL=debug/g" ${{ env.KUSTOMIZE_PATH }}/.env
 
       - name: Deploy to Kubernetes
         working-directory: ${{ env.KUSTOMIZE_PATH }}
@@ -280,14 +280,14 @@ jobs:
 
       - name: Patch .env
         run: |
+          sed -i "s/LOG_LEVEL=.*/LOG_LEVEL=info/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/APP_KEY=.*/APP_KEY=${{ secrets.APP_KEY }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/NODE_ENV=.*/NODE_ENV=production/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/DB_HOST=.*/DB_HOST=${{ secrets.DB_HOST }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/DB_PORT=.*/DB_PORT=${{ vars.DB_PORT }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/DB_USER=.*/DB_USER=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
           sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
           sed -i "s/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_USER=.*/DB_USER=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_PORT=.*/DB_PORT=${{ vars.DB_PORT }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_HOST=.*/DB_HOST=${{ secrets.DB_HOST }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/NODE_ENV=.*/NODE_ENV=production/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/APP_KEY=.*/APP_KEY=${{ secrets.APP_KEY }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/LOG_LEVEL=.*/LOG_LEVEL=info/g" ${{ env.KUSTOMIZE_PATH }}/.env
 
       - name: Deploy to Kubernetes
         working-directory: ${{ env.KUSTOMIZE_PATH }}
