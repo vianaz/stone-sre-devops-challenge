@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: api
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: api
@@ -14,6 +15,15 @@ spec:
       containers:
         - name: api
           image: ghcr.io/vianaz/stone-sre-devops-challenge:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /health
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /health
           envFrom:
             - configMapRef:
                 name: api-config
