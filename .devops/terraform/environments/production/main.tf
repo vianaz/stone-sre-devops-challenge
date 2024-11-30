@@ -98,7 +98,7 @@ resource "github_actions_environment_variable" "main" {
   for_each = {
     DB_PORT = digitalocean_database_cluster.main.port
     DB_DATABASE = digitalocean_database_cluster.main.database
-    LOAD_BALANCER_SIZE_UNIT = 1
+    APP_URL                 = "https://${cloudflare_record.main.hostname}"
   }
 
   repository    = data.github_repository.main.name

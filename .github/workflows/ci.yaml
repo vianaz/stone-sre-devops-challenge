@@ -250,8 +250,7 @@ jobs:
 
       - name: Deploy to Kubernetes
         working-directory: ${{ env.KUSTOMIZE_PATH }}
-        # Precisa ser desse jeito aspas simples com duplas dentro, se não vai dar erro
-        run: kustomize build . | LOAD_BALANCER_ID='"${{ secrets.LOAD_BALANCER_ID }}"' LOAD_BALANCER_SIZE_UNIT='"${{ vars.LOAD_BALANCER_SIZE_UNIT }}"' envsubst | kubectl apply -f -
+        run: kubectl apply -k .
 
 
   deploy-production:
@@ -292,5 +291,4 @@ jobs:
 
       - name: Deploy to Kubernetes
         working-directory: ${{ env.KUSTOMIZE_PATH }}
-        # Precisa ser desse jeito aspas simples com duplas dentro, se não vai dar erro
-        run: kustomize build . | LOAD_BALANCER_ID='"${{ secrets.LOAD_BALANCER_ID }}"' LOAD_BALANCER_SIZE_UNIT='"${{ vars.LOAD_BALANCER_SIZE_UNIT }}"' envsubst | kubectl apply -f -
+        run: kubectl apply -k .
