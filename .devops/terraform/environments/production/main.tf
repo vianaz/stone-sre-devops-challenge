@@ -47,8 +47,7 @@ resource "digitalocean_project_resources" "main" {
   project = digitalocean_project.main.id
   resources = [
     digitalocean_database_cluster.main.urn,
-    digitalocean_kubernetes_cluster.main.urn,
-    digitalocean_loadbalancer.main.urn
+    digitalocean_kubernetes_cluster.main.urn
   ]
 }
 
@@ -113,14 +112,14 @@ resource "github_actions_environment_variable" "main" {
 ########################################################
 ################## CloudFlare #########################
 ######################################################
-data "cloudflare_zone" "main" {
-  name = "vianaz.online"
-}
-resource "cloudflare_record" "main" {
-  zone_id = data.cloudflare_zone.main.id
-  name    = "api"
-  content = digitalocean_loadbalancer.main.ip
-  type    = "A"
-  ttl     = 1
-  proxied = true
-}
+# data "cloudflare_zone" "main" {
+#   name = "vianaz.online"
+# }
+# resource "cloudflare_record" "main" {
+#   zone_id = data.cloudflare_zone.main.id
+#   name    = "api"
+#   content = digitalocean_loadbalancer.main.ip
+#   type    = "A"
+#   ttl     = 1
+#   proxied = true
+# }
