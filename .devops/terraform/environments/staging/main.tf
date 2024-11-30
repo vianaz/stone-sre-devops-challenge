@@ -98,7 +98,7 @@ resource "github_actions_environment_secret" "main" {
     DIGITALOCEAN_ACCESS_TOKEN = var.do_token
     K8S_CLUSTER_ID = digitalocean_kubernetes_cluster.main.id
     LOAD_BALANCER_ID = digitalocean_loadbalancer.main.id
-    LOAD_BALANCER_SIZE_UNIT = 2
+    DB_HOST = digitalocean_database_cluster.main.host
   }
 
   repository      = data.github_repository.main.name
@@ -110,9 +110,9 @@ resource "github_actions_environment_secret" "main" {
 resource "github_actions_environment_variable" "main" {
   depends_on = [ github_repository_environment.environment, digitalocean_database_cluster.main ]
   for_each = {
-    DB_HOST = digitalocean_database_cluster.main.host
     DB_PORT = digitalocean_database_cluster.main.port
     DB_DATABASE = digitalocean_database_cluster.main.database
+    LOAD_BALANCER_SIZE_UNIT = 2
   }
 
   repository    = data.github_repository.main.name
