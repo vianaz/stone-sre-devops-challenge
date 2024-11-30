@@ -134,6 +134,6 @@ resource "cloudflare_record" "main" {
   name    = "api-${local.environment}"
   content = digitalocean_loadbalancer.main.ip
   type    = "A"
-  ttl     = 60
+  ttl     = 1
   proxied = true
 }
