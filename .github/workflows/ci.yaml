@@ -248,6 +248,8 @@ jobs:
           sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
           sed -i "s/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
 
+      - run: cat ${{ env.KUSTOMIZE_PATH }}/.env
+
       - name: Deploy to Kubernetes
         working-directory: ${{ env.KUSTOMIZE_PATH }}
         run: kubectl apply -k .
