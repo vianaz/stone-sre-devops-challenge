@@ -53,6 +53,11 @@ resource "digitalocean_loadbalancer" "main" {
     target_port = 80
     target_protocol = "http"
   }
+
+  lifecycle {
+    # This is necessary because the load balancer is created once and then will be managed by Kubernetes Service
+    ignore_changes = [ forwarding_rule, name ]
+  }
 }
 
 # Project Resources
