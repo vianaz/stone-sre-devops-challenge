@@ -92,7 +92,7 @@ resource "github_actions_environment_secret" "main" {
     DIGITALOCEAN_ACCESS_TOKEN = var.do_token
     K8S_CLUSTER_ID = digitalocean_kubernetes_cluster.main.id
     LOAD_BALANCER_ID = digitalocean_loadbalancer.main.id
-    LOAD_BALANCER_SIZE_UNIT = "1"
+    LOAD_BALANCER_SIZE_UNIT = 2
   }
 
   repository      = data.github_repository.main.name
