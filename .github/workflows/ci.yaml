@@ -51,6 +51,7 @@ jobs:
     outputs:
       image_name_with_tag: ${{ steps.meta.outputs.tags[0] }}
       artifact_name: ${{ env.ARTIFACT_NAME }}
+      version: ${{ steps.semver.outputs.next }}
     env:
       DOCKER_FILE: .devops/docker/Dockerfile
       ARTIFACT_NAME: stone-sre-devops-challenge-${{ github.sha }}
@@ -74,7 +75,7 @@ jobs:
           tags: |
             type=raw,value=${{ steps.semver.outputs.next }},priority=1000,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=latest,priority=900,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=ref,priority=800,enable=${{ github.event.pull_request != null }}
+            type=ref,priority=800,event=pr,enable=${{ github.event.pull_request != null }}
 
       - run: |
           echo "${{ steps.meta.outputs.tags }}"
@@ -101,15 +102,6 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}
           path: /tmp/${{ env.ARTIFACT_NAME }}.tar
           retention-days: 3
-
-      - if: ${{ github.ref == format('refs/heads/{0}', 'main') }}
-        run: |
-          TAG_NAME="${{ steps.semver.outputs.next }}"
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "$TAG_NAME"
-          git push origin "$TAG_NAME"
 
   tests:
     runs-on: ubuntu-latest
@@ -277,3 +269,16 @@ jobs:
           aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
           kustomize edit set image ghcr.io/vianaz/stone-sre-devops-challenge=${{ needs.build.outputs.image_name_with_tag }}
           kubectl apply -k ${{ env.KUSTOMIZE_PATH }}
+
+  update-tags:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [push-and-sign-image, build]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update tags
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "[email protected]"
+          git tag -a ${{ needs.build.outputs.version }} -m "Release v${{ needs.build.outputs.version }}"
+          git push origin ${{ needs.build.outputs.version }}
