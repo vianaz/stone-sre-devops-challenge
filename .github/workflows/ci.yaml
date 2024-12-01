@@ -238,7 +238,8 @@ jobs:
       name: production
     # needs: [push-and-sign-image, build]
     container:
-      image: ghcr.io/vianaz/stone-sre-devops-challenge:v1.3.0 
+      image: ghcr.io/vianaz/stone-sre-devops-challenge:v1.3.0
+
       env:
         TZ: UTC
         PORT: 8080
@@ -251,14 +252,10 @@ jobs:
         DB_DATABASE: ${{ secrets.DB_DATABASE }}
         DB_SSL: true
     steps:
-      - run: ls -a
-      - run: | 
-          cd /app
-          ls -a
-      - run: |
-          cd /
-          ls -a
-      - run: pnpm migration:run --force
+      - working-directory: /app
+        run: |
+          pnpm migration:run --force
+
       
 
   deploy-production:
