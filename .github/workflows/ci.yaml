@@ -236,10 +236,9 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: production
-    needs: [push-and-sign-image, build]
+    # needs: [push-and-sign-image, build]
     container:
-      image: ${{ needs.build.outputs.image_name_with_tag }}
-      options: --workdir /app
+      image: ghcr.io/vianaz/stone-sre-devops-challenge:v1.3.0 
       env:
         TZ: UTC
         PORT: 8080
@@ -252,6 +251,7 @@ jobs:
         DB_DATABASE: ${{ secrets.DB_DATABASE }}
         DB_SSL: true
     steps:
+      - run: ls
       - run: pnpm migration:run --force
       
 
