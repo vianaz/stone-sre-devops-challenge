@@ -212,12 +212,38 @@ jobs:
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
-  # deploy-staging:
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # needs: [push-and-sign-image, build, deploy-staging]
+    needs: [push-and-sign-image, build]
+    environment:
+      name: production
+      # url: ${{ vars.APP_URL }}
+    env:
+      KUSTOMIZE_PATH: .devops/k8s/base
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: github-oidc-provider-aws
+          role-session-name: ${{ github.actor }}
+          aws-region: us-east-1
+      
+      - run: aws sts get-caller-identity
+      
+  # deploy-production:
   #   runs-on: ubuntu-latest
   #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #   # needs: [push-and-sign-image, build, deploy-staging]
   #   needs: [push-and-sign-image, build]
   #   environment:
-  #     name: staging
+  #     name: production
   #     url: ${{ vars.APP_URL }}
   #   env:
   #     KUSTOMIZE_PATH: .devops/k8s/base
@@ -239,7 +265,7 @@ jobs:
 
   #     - name: Patch .env
   #       run: |
-  #         sed -i "s/LOG_LEVEL=.*/LOG_LEVEL=debug/g" ${{ env.KUSTOMIZE_PATH }}/.env
+  #         sed -i "s/LOG_LEVEL=.*/LOG_LEVEL=info/g" ${{ env.KUSTOMIZE_PATH }}/.env
   #         sed -i "s/APP_KEY=.*/APP_KEY=${{ secrets.APP_KEY }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
   #         sed -i "s/NODE_ENV=.*/NODE_ENV=production/g" ${{ env.KUSTOMIZE_PATH }}/.env
   #         sed -i "s/DB_HOST=.*/DB_HOST=${{ secrets.DB_HOST }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
@@ -248,50 +274,6 @@ jobs:
   #         sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
   #         sed -i "s/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
 
-  #     - run: cat ${{ env.KUSTOMIZE_PATH }}/.env
-
   #     - name: Deploy to Kubernetes
   #       working-directory: ${{ env.KUSTOMIZE_PATH }}
   #       run: kubectl apply -k .
-
-
-  deploy-production:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    # needs: [push-and-sign-image, build, deploy-staging]
-    needs: [push-and-sign-image, build]
-    environment:
-      name: production
-      url: ${{ vars.APP_URL }}
-    env:
-      KUSTOMIZE_PATH: .devops/k8s/base
-    permissions:
-      id-token: write
-      contents: read
-      actions: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-      - name: Save DigitalOcean kubeconfig
-        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.K8S_CLUSTER_ID }}
-
-      - name: Copy .env.example to .env
-        run: cp .env.example ${{ env.KUSTOMIZE_PATH }}/.env
-
-      - name: Patch .env
-        run: |
-          sed -i "s/LOG_LEVEL=.*/LOG_LEVEL=info/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/APP_KEY=.*/APP_KEY=${{ secrets.APP_KEY }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/NODE_ENV=.*/NODE_ENV=production/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_HOST=.*/DB_HOST=${{ secrets.DB_HOST }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_PORT=.*/DB_PORT=${{ vars.DB_PORT }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_USER=.*/DB_USER=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-          sed -i "s/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
-
-      - name: Deploy to Kubernetes
-        working-directory: ${{ env.KUSTOMIZE_PATH }}
-        run: kubectl apply -k .

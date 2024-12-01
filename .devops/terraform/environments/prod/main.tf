@@ -45,3 +45,14 @@ module "eks" {
     }
   }
 }
+
+module "github-oidc" {
+  source  = "terraform-module/github-oidc-provider/aws"
+  version = "~> 2"
+
+  create_oidc_provider = true
+  create_oidc_role     = true
+
+  repositories              = ["vianaz/stone-sre-devops-challenge"]
+  oidc_role_attach_policies = ["arn:aws:iam::aws:policy/AdministratorAccess"]
+}
