@@ -216,7 +216,6 @@ jobs:
   deploy-production:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    # needs: [push-and-sign-image, build, deploy-staging]
     needs: [push-and-sign-image, build]
     environment:
       name: production
@@ -253,34 +252,3 @@ jobs:
         run: |
           aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
           kubectl apply -k ${{ env.KUSTOMIZE_PATH }}
-      
-  # deploy-production:
-  #   runs-on: ubuntu-latest
-  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-  #   # needs: [push-and-sign-image, build, deploy-staging]
-  #   needs: [push-and-sign-image, build]
-  #   environment:
-  #     name: production
-  #     url: ${{ vars.APP_URL }}
-  #   env:
-  #     KUSTOMIZE_PATH: .devops/k8s/base
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #     actions: read
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: digitalocean/action-doctl@v2
-  #       with:
-  #         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-  #     - name: Save DigitalOcean kubeconfig
-  #       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.K8S_CLUSTER_ID }}
-
-  #
-
-  
-
-  #     - name: Deploy to Kubernetes
-  #       working-directory: ${{ env.KUSTOMIZE_PATH }}
-  #       run: kubectl apply -k .
