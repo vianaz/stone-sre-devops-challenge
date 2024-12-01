@@ -74,7 +74,7 @@ jobs:
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ steps.semver.outputs.next }},priority=1000,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=${{ steps.semver.outputs.next || steps.semver.outputs.current }},priority=1000,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=latest,priority=900,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=ref,priority=800,event=pr,enable=${{ github.event.pull_request != null }}
 
