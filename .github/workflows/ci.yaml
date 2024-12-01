@@ -11,7 +11,6 @@ env:
   DOCKER_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   NODE_VERSION: 20.11.1
-  IS_PR: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lint:
@@ -65,7 +64,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: ${{ env.IS_PR && format('pr-{0}', github.event.number) || format('latest, v{0}', github.run_number) }}
+          tags: 
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=sha,value=${{ github.sha }}
 
       - name: Build and export
         id: build

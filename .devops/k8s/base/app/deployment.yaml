@@ -14,14 +14,14 @@ spec:
     spec:
       initContainers:
         - name: run-migrations
-          image: ghcr.io/vianaz/stone-sre-devops-challenge:latest
+          image: ghcr.io/vianaz/stone-sre-devops-challenge
           command: ["pnpm", "migration:run", "--force"]
           envFrom:
             - configMapRef:
                 name: api-config
       containers:
         - name: api
-          image: ghcr.io/vianaz/stone-sre-devops-challenge:latest
+          image: ghcr.io/vianaz/stone-sre-devops-challenge
           imagePullPolicy: Always
           livenessProbe:
             httpGet:

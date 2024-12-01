@@ -31,7 +31,3 @@ replacements:
     select:
       kind: Service
       name: api
-images:
-- name: ghcr.io/vianaz/stone-sre-devops-challenge
-  newName: ghcr.io/vianaz/stone-sre-devops-challenge
-  newTag: "1"

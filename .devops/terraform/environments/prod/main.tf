@@ -91,20 +91,6 @@ resource "neon_project" "this" {
   history_retention_seconds = 86400
 }
 
-resource "neon_branch" "this" {
-  project_id = neon_project.this.id
-  parent_id  = neon_project.this.default_branch_id
-  name       = "postgres"
-}
-
-resource "neon_endpoint" "this" {
-  project_id = neon_project.this.id
-  branch_id  = neon_branch.this.id
-
-  autoscaling_limit_min_cu = 0.25
-  autoscaling_limit_max_cu = 1
-}
-
 ############### GITHUB ################
 data "github_repository" "main" {
   full_name = "vianaz/stone-sre-devops-challenge"
