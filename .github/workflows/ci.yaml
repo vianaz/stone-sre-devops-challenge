@@ -237,23 +237,21 @@ jobs:
     environment:
       name: production
     needs: [push-and-sign-image, build]
-    container:
-      image: ${{ needs.build.outputs.image_name_with_tag }}
-      env:
-        TZ: UTC
-        PORT: 8080
-        LOG_LEVEL: info
-        APP_KEY: ${{ secrets.APP_KEY }}
-        NODE_ENV: production
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_PORT: ${{ vars.DB_PORT }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_DATABASE: ${{ secrets.DB_DATABASE }}
-        DB_SSL: false
+    env:
+      TZ: UTC
+      PORT: 8080
+      LOG_LEVEL: info
+      APP_KEY: ${{ secrets.APP_KEY }}
+      NODE_ENV: production
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ vars.DB_PORT }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      DB_SSL: true
     steps:
-      - name: Run migrations
-        run: pnpm migration:run --force
+      - uses: actions/checkout@v4
+      - run: pnpm migration:run --force
 
   deploy-production:
     runs-on: ubuntu-latest
@@ -289,6 +287,7 @@ jobs:
           sed -i "s/DB_USER=.*/DB_USER=${{ secrets.DB_USER }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
           sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=${{ secrets.DB_PASSWORD }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
           sed -i "s/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_DATABASE }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
+          sed -i "s/DB_SSL=.*/DB_SSL=true/g" ${{ env.KUSTOMIZE_PATH }}/.env
       
       - name: Update Kubernetes resources
         working-directory: ${{ env.KUSTOMIZE_PATH }}
