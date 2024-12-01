@@ -1,9 +1,5 @@
 terraform {
   required_providers {
-    digitalocean = {
-      source  = "digitalocean/digitalocean"
-      version = "~> 2.0"
-    }
     github = {
       source  = "integrations/github"
       version = "~> 6.0"
@@ -14,7 +10,11 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.0"
+      version = "~> 2.0"
+    }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
     }
   }
 }
