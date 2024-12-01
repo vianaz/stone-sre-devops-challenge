@@ -37,7 +37,7 @@ module "eks" {
     main = {
       ami_type       = "AL2023_x86_64_STANDARD"
       instance_types = ["t3a.medium"]
-      
+      capacity_type = "SPOT"
 
       min_size     = 1
       max_size     = 5
