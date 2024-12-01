@@ -20,6 +20,7 @@ spec:
             httpGet:
               port: http
               path: /health
+            initialDelaySeconds: 15
             successThreshold: 1
             failureThreshold: 3
           readinessProbe:
