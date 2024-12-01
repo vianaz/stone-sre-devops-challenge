@@ -51,7 +51,7 @@ jobs:
     outputs:
       image_name_with_tag: ${{ steps.extract-first.outputs.first_tag }}
       artifact_name: ${{ env.ARTIFACT_NAME }}
-      version: ${{ steps.semver.outputs.next }}
+      version: ${{ steps.semver.outputs.next || steps.semver.outputs.current }}
     env:
       DOCKER_FILE: .devops/docker/Dockerfile
       ARTIFACT_NAME: stone-sre-devops-challenge-${{ github.sha }}
