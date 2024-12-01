@@ -231,7 +231,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: github-oidc-provider-aws
+          role-to-assume: arn:aws:iam::057560478517:role/github-oidc-provider-aws
           role-session-name: ${{ github.actor }}
           aws-region: us-east-1
       
