@@ -251,7 +251,13 @@ jobs:
         DB_DATABASE: ${{ secrets.DB_DATABASE }}
         DB_SSL: true
     steps:
-      - run: ls
+      - run: ls -a
+      - run: | 
+          cd /app
+          ls -a
+      - run: |
+          cd /
+          ls -a
       - run: pnpm migration:run --force
       
 
