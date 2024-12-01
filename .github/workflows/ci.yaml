@@ -77,8 +77,7 @@ jobs:
             type=raw,value=latest,priority=900,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=ref,priority=800,event=pr,enable=${{ github.event.pull_request != null }}
 
-      - name: Extrair o primeiro tag
-        id: extract-first
+      - id: extract-first
         run: |
           tags="${{ steps.meta.outputs.tags }}"
           first_tag=$(echo "$tags" | head -n 1)
@@ -219,7 +218,7 @@ jobs:
       - name: Push image to GitHub Container Registry
         id: push
         run: |
-          docker push ${{ env.IMAGE_NAME_WITH_TAG }}
+          docker push ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }} --all-tags
           digest=$(docker image inspect ${{ env.IMAGE_NAME_WITH_TAG }} --format '{{index .RepoDigests 0}}' | cut -d'@' -f2)
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
 
@@ -268,20 +267,21 @@ jobs:
           sed -i "s/DB_DATABASE=.*/DB_DATABASE=${{ secrets.DB_DATABASE }}/g" ${{ env.KUSTOMIZE_PATH }}/.env
       
       - name: Update Kubernetes resources
+        working-directory: ${{ env.KUSTOMIZE_PATH }}
         run: |
           aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
           kustomize edit set image ghcr.io/vianaz/stone-sre-devops-challenge=${{ needs.build.outputs.image_name_with_tag }}
-          kubectl apply -k ${{ env.KUSTOMIZE_PATH }}
+          kubectl apply -k .
 
   update-tags:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [push-and-sign-image, build]
+    needs: [build]
     steps:
       - uses: actions/checkout@v4
       - name: Update tags
         run: |
           git config user.name "GitHub Actions"
           git config user.email "[email protected]"
-          git tag -a ${{ needs.build.outputs.version }} -m "Release v${{ needs.build.outputs.version }}"
+          git tag -a ${{ needs.build.outputs.version }} -m "Release ${{ needs.build.outputs.version }}"
           git push origin ${{ needs.build.outputs.version }}
