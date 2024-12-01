@@ -94,31 +94,43 @@ data "github_user" "current" {
   username = "vianaz"
 }
 resource "github_repository_environment" "environment" {
-  repository  = data.github_repository.main.name
-  environment = local.environment
+  repository        = data.github_repository.main.name
+  environment       = local.environment
   can_admins_bypass = false
   # reviewers {
   #   users = [ data.github_user.current.id ]
   # }
   deployment_branch_policy {
-    protected_branches = false
+    protected_branches     = false
     custom_branch_policies = true
   }
 }
 resource "github_actions_environment_secret" "main" {
   for_each = {
-    AWS_ROLE_ARN = module.github-oidc.oidc_role
+    AWS_ROLE_ARN     = module.github-oidc.oidc_role
     EKS_CLUSTER_NAME = module.eks.cluster_name
-    APP_KEY     = "H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J"
-    DB_HOST    = "postgres"
-    DB_PORT    = "5432"
-    DB_USER    = "postgres"
-    DB_PASSWORD = "postgres"
-    DB_DATABASE = "postgres"
+    APP_KEY          = "H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J"
+    DB_HOST          = "postgres"
+    DB_USER          = "postgres"
+    DB_PASSWORD      = "postgres"
+    DB_DATABASE      = "postgres"
   }
 
   repository      = data.github_repository.main.name
   environment     = local.environment
   secret_name     = each.key
   plaintext_value = each.value
+}
+
+resource "github_actions_environment_variable" "main" {
+  for_each = {
+    ENVIRONMENT  = local.environment
+    PROJECT_NAME = local.project_name
+    DB_PORT          = "5432"
+  }
+
+  repository    = data.github_repository.main.name
+  environment   = local.environment
+  variable_name = each.key
+  value         = each.value
 }

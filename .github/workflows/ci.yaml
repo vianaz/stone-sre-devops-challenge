@@ -235,6 +235,8 @@ jobs:
           role-session-name: ${{ github.actor }}
           aws-region: us-east-1
 
+      - name: Copy .env.example to .env
+        run: cp .env.example ${{ env.KUSTOMIZE_PATH }}/.env
 
       - name: Patch .env
         run: |
@@ -275,8 +277,7 @@ jobs:
   #     - name: Save DigitalOcean kubeconfig
   #       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.K8S_CLUSTER_ID }}
 
-  #     - name: Copy .env.example to .env
-  #       run: cp .env.example ${{ env.KUSTOMIZE_PATH }}/.env
+  #
 
   
 
