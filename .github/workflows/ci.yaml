@@ -49,7 +49,7 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     outputs:
-      image_name_with_tag: ${{ steps.meta.outputs.tags[0] }}
+      image_name_with_tag: ${{ steps.extract-first.outputs.first_tag }}
       artifact_name: ${{ env.ARTIFACT_NAME }}
       version: ${{ steps.semver.outputs.next }}
     env:
@@ -77,9 +77,12 @@ jobs:
             type=raw,value=latest,priority=900,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=ref,priority=800,event=pr,enable=${{ github.event.pull_request != null }}
 
-      - run: |
-          echo "${{ steps.meta.outputs.tags }}"
-          echo "${{ steps.meta.outputs.tags[0] }}"
+      - name: Extrair o primeiro tag
+        id: extract-first
+        run: |
+          tags="${{ steps.meta.outputs.tags }}"
+          first_tag=$(echo "$tags" | head -n 1)
+          echo "first_tag=$first_tag" >> $GITHUB_OUTPUT
 
       - name: Build and export
         id: build
