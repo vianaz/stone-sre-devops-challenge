@@ -231,11 +231,34 @@ jobs:
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
+  run-migrations:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+    needs: [push-and-sign-image, build]
+    container:
+      image: ${{ needs.build.outputs.image_name_with_tag }}
+      env:
+        TZ: UTC
+        PORT: 8080
+        LOG_LEVEL: info
+        APP_KEY: ${{ secrets.APP_KEY }}
+        NODE_ENV: production
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ vars.DB_PORT }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_DATABASE: ${{ secrets.DB_DATABASE }}
+        DB_SSL: false
+    steps:
+      - name: Run migrations
+        run: pnpm migration:run --force
 
   deploy-production:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [push-and-sign-image, build]
+    needs: [push-and-sign-image, build, run-migrations]
     environment:
       name: production
       # url: ${{ vars.APP_URL }}
