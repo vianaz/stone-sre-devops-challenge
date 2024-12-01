@@ -2,37 +2,36 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - app/service.yaml
-  - app/deployment.yaml
-  - postgres/service.yaml
-  - postgres/deployment.yaml
-
-images:
-  - name: ghcr.io/vianaz/stone-sre-devops-challenge
-    newTag: main
+- app/service.yaml
+- app/deployment.yaml
 
 configMapGenerator:
-  - name: api-config
-    env: .env
+- envs:
+  - .env
+  name: api-config
 
 replacements:
-  - source:
-      name: api-config
-      kind: ConfigMap
-      fieldPath: data.PORT
-    targets:
-      - select:
-          kind: Deployment
-          name: api
-        fieldPaths:
-          - spec.template.spec.containers.[name=api].ports.[name=http].containerPort
-  - source:
-      name: api-config
-      kind: ConfigMap
-      fieldPath: data.PORT
-    targets:
-      - select:
-          kind: Service
-          name: api
-        fieldPaths:
-          - spec.ports.[name=http].targetPort
+- source:
+    fieldPath: data.PORT
+    kind: ConfigMap
+    name: api-config
+  targets:
+  - fieldPaths:
+    - spec.template.spec.containers.[name=api].ports.[name=http].containerPort
+    select:
+      kind: Deployment
+      name: api
+- source:
+    fieldPath: data.PORT
+    kind: ConfigMap
+    name: api-config
+  targets:
+  - fieldPaths:
+    - spec.ports.[name=http].targetPort
+    select:
+      kind: Service
+      name: api
+images:
+- name: ghcr.io/vianaz/stone-sre-devops-challenge
+  newName: ghcr.io/vianaz/stone-sre-devops-challenge
+  newTag: "1"

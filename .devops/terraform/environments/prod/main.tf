@@ -85,6 +85,25 @@ module "eks" {
   }
 }
 
+############### Neon DB ################
+resource "neon_project" "this" {
+  name = local.project_name
+  history_retention_seconds = 86400
+}
+
+resource "neon_branch" "this" {
+  project_id = neon_project.this.id
+  parent_id  = neon_project.this.default_branch_id
+  name       = "postgres"
+}
+
+resource "neon_endpoint" "this" {
+  project_id = neon_project.this.id
+  branch_id  = neon_branch.this.id
+
+  autoscaling_limit_min_cu = 0.25
+  autoscaling_limit_max_cu = 1
+}
 
 ############### GITHUB ################
 data "github_repository" "main" {
@@ -110,10 +129,10 @@ resource "github_actions_environment_secret" "main" {
     AWS_ROLE_ARN     = module.github-oidc.oidc_role
     EKS_CLUSTER_NAME = module.eks.cluster_name
     APP_KEY          = "H5TfJkzRDwDw_Hj5-FRu6hZJRXszYT8J"
-    DB_HOST          = "postgres"
-    DB_USER          = "postgres"
-    DB_PASSWORD      = "postgres"
-    DB_DATABASE      = "postgres"
+    DB_HOST          = neon_project.this.database_host
+    DB_USER          = neon_project.this.database_user
+    DB_PASSWORD      = neon_project.this.database_password
+    DB_DATABASE      = neon_project.this.database_name
   }
 
   repository      = data.github_repository.main.name
@@ -126,7 +145,7 @@ resource "github_actions_environment_variable" "main" {
   for_each = {
     ENVIRONMENT  = local.environment
     PROJECT_NAME = local.project_name
-    DB_PORT          = "5432"
+    DB_PORT      = 5432
   }
 
   repository    = data.github_repository.main.name

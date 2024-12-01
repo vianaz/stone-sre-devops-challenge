@@ -11,6 +11,7 @@ env:
   DOCKER_REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   NODE_VERSION: 20.11.1
+  IS_PR: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lint:
@@ -64,6 +65,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: ${{ env.IS_PR && format('pr-{0}', github.event.number) || format('latest, v{0}', github.run_number) }}
 
       - name: Build and export
         id: build
@@ -251,4 +253,5 @@ jobs:
       - name: Update Kubernetes resources
         run: |
           aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }}
+          kustomize edit set image ghcr.io/vianaz/stone-sre-devops-challenge=${{ needs.build.outputs.image_name_with_tag }}
           kubectl apply -k ${{ env.KUSTOMIZE_PATH }}

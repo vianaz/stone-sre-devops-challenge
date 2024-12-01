@@ -27,3 +27,9 @@ variable "cloudflare_token" {
   type = string
   sensitive = true
 }
+
+variable "neon_api_key" {
+  description = "Neon DB API key"
+  type = string
+  sensitive = true
+}
