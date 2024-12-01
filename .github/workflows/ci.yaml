@@ -102,8 +102,7 @@ jobs:
           path: /tmp/${{ env.ARTIFACT_NAME }}.tar
           retention-days: 3
 
-      - name: Create and Push Git Tag
-        if: ${{ github.ref == format('refs/heads/{0}', 'main') }}
+      - if: ${{ github.ref == format('refs/heads/{0}', 'main') }}
         run: |
           TAG_NAME="${{ steps.semver.outputs.next }}"
 
