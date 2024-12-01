@@ -239,6 +239,7 @@ jobs:
     needs: [push-and-sign-image, build]
     container:
       image: ${{ needs.build.outputs.image_name_with_tag }}
+      options: --workdir /app
       env:
         TZ: UTC
         PORT: 8080
@@ -250,9 +251,6 @@ jobs:
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         DB_DATABASE: ${{ secrets.DB_DATABASE }}
         DB_SSL: true
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - run: pnpm migration:run --force
       
